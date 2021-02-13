@@ -3,6 +3,8 @@ package eidi1.pinguinstreams;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 public class PinguStreams {
@@ -18,13 +20,21 @@ public class PinguStreams {
     }
 
     public static Stream<Penguin> penguins() {
-        // TODO
-        return null;
+        List<Penguin> result = new ArrayList<>();
+        lines().skip(1).map(x -> {
+            if (x.equals(";")){
+                x = " ";
+            }
+            return x;
+        }).forEach(x -> {
+            result.add(new Penguin(x.split(" ")));
+        });
+        return result.stream();
     }
 
     public static Stream<Penguin> filter(Stream<Penguin> stream, String field, String value) {
-        // TODO
-        return null;
+        return stream.filter(x -> x.get(field).equals(value));
+
     }
 
     public static Stream<String> getFeature(Stream<Penguin> stream, String field) {
@@ -32,8 +42,11 @@ public class PinguStreams {
     }
 
     public static double getAverage(Stream<Penguin> stream, String field) {
-        // TODO
-        return 0d;
+        return stream.filter(x -> !x.get(field).equals("NA"))
+                .mapToDouble(x -> x.getDouble(field))
+                .average()
+                .orElse(0);
+
     }
 
     public static double getAverageOfSpecies(String species, String feature) {
